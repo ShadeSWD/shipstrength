@@ -28,10 +28,13 @@ function brusCompute() {
   const Wb = I / z0;            // м³ (днище)
   // волновые моменты IACS UR S11 (кН·м)
   const L = stBr.L, B = stBr.B, Cb = Math.max(stBr.Cb, 0.6);
-  const C = L <= 300 ? 10.75 - ((300 - L) / 100) ** 1.5 : 10.75;
+  // волновой коэффициент по Правилам РМРС ч. II, п. 1.3.1.4 (= IACS)
+  const C = L <= 90 ? 0.0856 * L : (L < 300 ? 10.75 - ((300 - L) / 100) ** 1.5 : 10.75);
   const Mw_hog = 190 * C * L * L * B * Cb * 1e-3;
   const Mw_sag = -110 * C * L * L * B * (Cb + 0.7) * 1e-3;
-  return { A, z0, I, Wd, Wb, zTop, C, Mw_hog, Mw_sag };
+  // минимальный момент сопротивления на миделе (РМРС 1.4.6.7-1), см³ → м³
+  const Wmin = C * B * L * L * (Cb + 0.7) * 1e-6;
+  return { A, z0, I, Wd, Wb, zTop, C, Mw_hog, Mw_sag, Wmin };
 }
 
 function brusRender() {
@@ -68,7 +71,10 @@ function brusRender() {
     <tr><td>W палубы / W днища</td><td>${fmt(r.Wd, 2)} / ${fmt(r.Wb, 2)} м³</td></tr>
     <tr><td>Волновой коэффициент C</td><td>${fmt(r.C, 2)}</td></tr>
     <tr><td>M волновой (перегиб / прогиб)</td>
-        <td>${fmt(r.Mw_hog / 1000, 0)} / ${fmt(r.Mw_sag / 1000, 0)} МН·м</td></tr>`;
+        <td>${fmt(r.Mw_hog / 1000, 0)} / ${fmt(r.Mw_sag / 1000, 0)} МН·м</td></tr>
+    <tr><td>Минимальный W по Правилам (1.4.6.7)</td>
+        <td>${fmt(r.Wmin, 2)} м³ — фактический ${fmt(Math.min(r.Wd, r.Wb), 2)} м³
+        <span class="badge ${Math.min(r.Wd, r.Wb) >= r.Wmin ? 'ok' : 'bad'}">${Math.min(r.Wd, r.Wb) >= r.Wmin ? 'достаточно' : 'МАЛО'}</span></td></tr>`;
   document.getElementById('brus-sigma').innerHTML = rows.map(([n, s]) => `
     <tr><td>${n}</td><td>${fmt(s, 0)} МПа</td>
     <td><span class="badge ${s <= allow ? 'ok' : 'bad'}">${s <= allow ? '≤ 175 МПа' : 'ПРЕВЫШЕНИЕ'}</span></td></tr>`).join('');

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Источники: учебники СМК, правила Регистра, современные статьи</title>
+<meta name="description" content="Литература по строительной механике корабля: уравнение трёх моментов, правила РМРС часть II «Корпус», пособия ВГТУ и КнАГТУ, статьи ISSC о предельной прочности корпуса.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Источники и литература</h1>
+  <p class="lead">Формулы решателей выверены по открытым первоисточникам:
+  грузовые члены уравнения трёх моментов сходятся с вузовскими пособиями,
+  волновые моменты и минимальные модули сечения — с Правилами Регистра
+  (текст ч. II «Корпус» — в открытом доступе на сайте РС). Даты обращения:
+  12.08.2026.</p>
+
+  <h2>Метод трёх моментов и прогибы</h2>
+  <ol class="bib">
+    <li>Мухтаров Р. А., Гриднев С. Ю. Расчёт многопролётных неразрезных
+      балок : учеб.-метод. пособие. — Воронеж : ВГТУ, 2022. —
+      <span class="bib-url"><a href="https://cchgeu.ru/upload/iblock/6c8/1q1xosoahuqfvop1u5ztfrhpu76j5zq2/MP_Nerazreznaya-balka.pdf">PDF</a></span> —
+      формулы (3.3)–(3.4), фиктивные пролёты при заделке, консоли,
+      уравнение пяти моментов для упругих опор.</li>
+    <li>Неразрезные балки : метод. указания. — Норильск : ЗГУ. —
+      <span class="bib-url"><a href="https://polaruniversity.ru/vikon/sveden/files/Nerazreznye_balki_(metod.ukaz._i_kontr.zadaniya_dlya_samost.raboty)(3).pdf">PDF</a></span></li>
+    <li>Уравнение трёх моментов (грузовые члены через площади эпюр) —
+      <span class="bib-url"><a href="https://soprotmat.ru/sila4.htm">soprotmat.ru</a></span>;
+      таблица фиктивных опорных реакций —
+      <span class="bib-url"><a href="https://prosopromat.ru/tablicy/fiktivnye-opornye-reakcii-dlya-rascheta-nerazreznyx-balok-s-pomoshhyu-uravneniya-trex-momentov.html">prosopromat.ru</a></span></li>
+    <li>Метод начальных параметров (универсальное уравнение упругой линии) —
+      <span class="bib-url"><a href="https://isopromat.ru/sopromat/teoria/metod-nachalnyh-parametrov">isopromat.ru</a></span></li>
+  </ol>
+  <p class="small">Сверка решателя: для равномерной нагрузки грузовой член
+  6·ω·c/L = qL³/4 (= 6·qL³/24), для силы — Pa(L²−a²)/L; контрольные случаи
+  qL²/8, −qL²/8 (двухпролётная), PL/4 и прогиб 5qL⁴/384EI воспроизводятся
+  решателем точно.</p>
+
+  <h2>Общая прочность и нормы</h2>
+  <ol class="bib">
+    <li>Правила классификации и постройки морских судов. Ч. II «Корпус». —
+      СПб. : Российский морской регистр судоходства. — НД № 2-020101-095. —
+      <span class="bib-url"><a href="https://rs-class.org/upload/iblock/41a/41a695e52b02892938de64c5a6ab7a9c.pdf">официальный PDF</a></span> —
+      волновой коэффициент (1.3.1.4), волновые моменты (1.4.4.1),
+      требования к W и I сечения (1.4.6), устойчивость и редуцирование
+      (1.4.8, 1.6.5), стержневая идеализация перекрытий (3.3.4).</li>
+    <li>Бурменский А. Д., Каменских И. В., Чижиумов С. Д. Проектирование
+      конструкций корпуса морских транспортных судов : учеб. пособие. —
+      Комсомольск-на-Амуре : КнАГТУ, 2014. —
+      <span class="bib-url"><a href="https://knastu.ru/media/files/page_files/page_421/posobiya_2014/_Burmensky,_Kamenskikh,_Chizhiumov_Proyektirovaniye_konstruktsy_korpusa_morskikh_transportnykh_sudov.pdf">PDF</a></span> —
+      полная табличная методика эквивалентного бруса (гл. 7), приближённые
+      формулы момента на тихой воде.</li>
+    <li>Чижиумов С. Д., Бурменский А. Д. Конструкции корпуса судов :
+      учеб. пособие. — 2006. —
+      <span class="bib-url"><a href="https://shipdesign.ru/Chizhiumov/ShipDesign-2.pdf">PDF</a></span></li>
+  </ol>
+
+  <h2>Классические учебники СМК</h2>
+  <ol class="bib">
+    <li>Короткин Я. И., Постнов В. А., Сиверс Н. Л. Строительная механика
+      корабля и теория упругости : в 2 т. — Л. : Судостроение, 1968
+      (2-е изд.: Постнов В. А., Хархурим И. Я. [и др.], 1987) — т. 2:
+      перекрытия с несколькими перекрёстными связями.</li>
+    <li>Родионов А. А. Строительная механика корабля. — СПб. : СПбГМТУ,
+      2013. — 162 с. —
+      <span class="bib-url"><a href="https://www.smtu.ru/ru/viewunit/2145/">кафедра СМК СПбГМТУ</a></span></li>
+    <li>Бойцов Г. В., Палий О. М., Постнов В. А., Чувиковский В. С.
+      Справочник по строительной механике корабля : в 3 т. — Л. :
+      Судостроение, 1982.</li>
+    <li>Постнов В. А., Хархурим И. Я. Метод конечных элементов в расчётах
+      судовых конструкций. — Л. : Судостроение, 1974.</li>
+  </ol>
+
+  <h2>Современные статьи: предельная прочность и открытые проблемы</h2>
+  <ol class="bib">
+    <li>ISSC 2022, Committee III.1 «Ultimate Strength» : отчёт комитета //
+      Proc. 21st ISSC. — 2022. — DOI 10.5957/ISSC-2022-COMMITTEE-III-1. —
+      <span class="bib-url"><a href="https://onepetro.org/snameissc/proceedings-pdf/ISSC22V1/1-ISSC22V1/D011S001R006/3099106/sname-issc-2022-committee-iii-1.pdf">PDF</a></span> —
+      метод Смита против нелинейного МКЭ, несовершенства, коррозия.</li>
+    <li>Ringsberg J. W. [et al.] The ISSC 2022 benchmark study on the
+      ultimate limit state analysis of a stiffened plate structure //
+      Marine Structures. — 2021. — Vol. 79. — 103026. —
+      <span class="bib-url"><a href="https://research.chalmers.se/publication/524558/file/524558_Fulltext.pdf">полный текст</a></span> —
+      разброс предсказаний 12+ команд: «формула против МКЭ».</li>
+    <li>Momčilović N. [et al.] Effect of Corrosion-Induced Structural
+      Degradation on the Ultimate Strength of a High-Tensile-Steel Ship
+      Hull // JMSE. — 2024. — 12(5):745. —
+      <span class="bib-url"><a href="https://doi.org/10.3390/jmse12050745">DOI</a></span> —
+      падение прочности до 30 % от коррозии. <i>Воспроизводимо в нашем
+      расчёте: уменьшите толщины (площади) элементов бруса на процент износа
+      и следите за W и напряжениями.</i></li>
+    <li>Tomičić M. [et al.] Hull Girder Ultimate Strength Analysis for
+      Thin-Walled Steel Structures // JMSE. — 2025. — 13(12):2282. —
+      <span class="bib-url"><a href="https://doi.org/10.3390/jmse13122282">DOI</a></span></li>
+    <li>Wang J. [et al.] Dynamic Ultimate Bearing Capacity … under
+      Whipping-Type Dynamic Bending Loads // JMSE. — 2026. — 14:1323. —
+      <span class="bib-url"><a href="https://doi.org/10.3390/jmse14141323">DOI</a></span> —
+      whipping-добавка к волновому моменту: открытая проблема норм.</li>
+    <li>Comparison of structural design and future trends in composite
+      hulls: a regulatory review // Int. J. Naval Arch. Ocean Eng. — 2023. —
+      <span class="bib-url"><a href="https://www.sciencedirect.com/science/article/pii/S209267822300047X">полный текст</a></span></li>
+    <li>Highlights and future research areas from ISSC 2022 // Marine
+      Structures. — 2025. —
+      <span class="bib-url"><a href="https://www.sciencedirect.com/science/article/pii/S0951833924001746">полный текст</a></span></li>
+  </ol>
+
+  <h2>Материалы курса</h2>
+  <p>Сайт построен по составу курсовых работ СМК и «Прочности корабля»
+  СПбГМТУ (неразрезные балки, шпангоутная рама, перекрытие, проверочный
+  расчёт общей прочности). Соседи по кластеру:
+  <a href="https://shadeswd.duckdns.org/shipstat/">статика корабля</a> ·
+  <a href="https://shadeswd.duckdns.org/descgeo/">начертательная геометрия</a> ·
+  <a href="https://shadeswd.duckdns.org/relmet/">Relation Metrics</a>.</p>
+</main>
+<script src="assets/site.js" data-root="./" data-page="sources"></script>
+</body>
+</html>

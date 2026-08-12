@@ -30,12 +30,6 @@
   footer.className = 'site';
   footer.innerHTML = `<div class="wrap">
     <div>Учебный сайт по курсу «Строительная механика корабля» · расчёты в браузере</div>
-    <div>
-      <a href="https://shadeswd.duckdns.org/shipstat/">Статика корабля</a> ·
-      <a href="https://shadeswd.duckdns.org/descgeo/">Начерталка</a> ·
-      <a href="https://shadeswd.duckdns.org/reduktor/">Редуктор</a> ·
-      <a href="https://shadeswd.duckdns.org/relmet/">Relation Metrics</a>
-    </div>
   </div>`;
   document.body.appendChild(footer);
 })();

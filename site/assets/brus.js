@@ -144,6 +144,156 @@ function brusRender() {
   }).join('');
 
   drawMidship(r);
+  drawEqBeam(r);
+  drawLengthDiagrams(r);
+}
+
+/* --- схема «сечение → эквивалентный брус» с эпюрой напряжений --- */
+function drawEqBeam(r) {
+  const host = document.getElementById('b-beam');
+  if (!host) return;
+  const e = stBr.els;
+  const k = 17, base = 250, zTop = 9.6;
+  const cxA = 130, halfA = Math.min(stBr.B, 20) / 2 * k * 0.62;
+  const yD = base - zTop * k, yNA = base - r.z0 * k;
+  const lbl = (x, y, t, anchor, color, size) =>
+    `<text x="${x}" y="${y}" text-anchor="${anchor || 'start'}"
+      style="font:${size || 11}px system-ui;fill:${color || '#3a3a42'}">${t}</text>`;
+
+  // площади поясков и стенки, см² → ширина полоски на схеме
+  const Adeck = e.filter(q => q.z > zTop * 0.75).reduce((s2, q) => s2 + q.A, 0);
+  const Abot = e.filter(q => q.z < zTop * 0.25).reduce((s2, q) => s2 + q.A, 0);
+  const Aweb = e.filter(q => q.z >= zTop * 0.25 && q.z <= zTop * 0.75).reduce((s2, q) => s2 + q.A, 0);
+  const wpx = a => clamp(a / 90, 6, 30);
+
+  let g = '';
+  // ---- слева: реальное сечение (упрощённо) ----
+  g += `<path d="M ${cxA - halfA} ${yD + 3} L ${cxA - halfA} ${base - 1.7 * k}
+        Q ${cxA - halfA} ${base} ${cxA - halfA + 26} ${base}
+        L ${cxA + halfA - 26} ${base} Q ${cxA + halfA} ${base} ${cxA + halfA} ${base - 1.7 * k}
+        L ${cxA + halfA} ${yD + 3}" fill="none" stroke="#16161a" stroke-width="1.8"/>`;
+  g += `<path d="M ${cxA - halfA} ${yD + 3} Q ${cxA} ${yD - 5} ${cxA + halfA} ${yD + 3}"
+        fill="none" stroke="#155e75" stroke-width="3"/>`;
+  const yVd = base - e[5].z * k;
+  g += `<line x1="${cxA - halfA + 6}" y1="${yVd}" x2="${cxA + halfA - 6}" y2="${yVd}" stroke="#155e75" stroke-width="2.2"/>`;
+  for (let x = cxA - halfA + 26; x < cxA + halfA - 14; x += 34)
+    g += `<line x1="${x}" y1="${yVd}" x2="${x}" y2="${base}" stroke="#b9b7ae" stroke-width="1.1"/>`;
+  g += lbl(cxA, yD - 22, 'реальное сечение', 'middle', '#6b6b74');
+  g += lbl(cxA - halfA - 4, base + 26, 'поперечный набор в брус не входит', 'start', '#8a8a92', 10.5);
+
+  // ---- стрелка «сводится к» ----
+  const xA = cxA + halfA + 18, xB = xA + 74;
+  g += `<line x1="${xA}" y1="${(yD + base) / 2}" x2="${xB - 10}" y2="${(yD + base) / 2}" stroke="#6b6b74" stroke-width="1.6"/>`;
+  g += `<path d="M ${xB} ${(yD + base) / 2} l -10 -5 l 0 10 z" fill="#6b6b74"/>`;
+  g += lbl((xA + xB) / 2, (yD + base) / 2 - 10, 'сводится к', 'middle', '#6b6b74');
+
+  // ---- справа: эквивалентный брус (двутавр) ----
+  const cxB = xB + 96, halfB = 74;
+  const tD = wpx(Adeck), tB = wpx(Abot), tW = clamp(Aweb / 200, 5, 20);
+  g += `<rect x="${cxB - halfB}" y="${yD}" width="${2 * halfB}" height="${tD}"
+        fill="rgba(21,94,117,.28)" stroke="#155e75" stroke-width="1.4"/>`;
+  g += `<rect x="${cxB - halfB}" y="${base - tB}" width="${2 * halfB}" height="${tB}"
+        fill="rgba(21,94,117,.28)" stroke="#155e75" stroke-width="1.4"/>`;
+  g += `<rect x="${cxB - tW / 2}" y="${yD + tD}" width="${tW}" height="${base - tB - yD - tD}"
+        fill="rgba(21,94,117,.16)" stroke="#155e75" stroke-width="1.2"/>`;
+  g += lbl(cxB - halfB, yD - 8, `поясок палубы ${fmt(Adeck, 0)} см²`, 'start', '#155e75');
+  g += lbl(cxB - halfB, base + 16, `поясок днища ${fmt(Abot, 0)} см²`, 'start', '#155e75');
+  g += lbl(cxB + tW / 2 + 8, (yD + base) / 2 - 6, `стенка (борта)`, 'start', '#155e75');
+  g += lbl(cxB + tW / 2 + 8, (yD + base) / 2 + 8, `${fmt(Aweb, 0)} см²`, 'start', '#155e75');
+  // нейтральная ось
+  g += `<line x1="${cxA - halfA - 16}" y1="${yNA}" x2="${cxB + halfB + 4}" y2="${yNA}"
+        stroke="#b3382e" stroke-width="1.5" stroke-dasharray="7 4"/>`;
+  g += lbl(cxA - halfA - 16, yNA - 6, `нейтральная ось z₀ = ${fmt(r.z0, 2)} м`, 'start', '#b3382e');
+
+  // ---- эпюра напряжений справа ----
+  const cxS = cxB + halfB + 150, sMax = 52;
+  g += `<line x1="${cxS}" y1="${yD - 10}" x2="${cxS}" y2="${base + 10}" stroke="#6b6b74" stroke-width="1"/>`;
+  const sD = (r.zTop - r.z0), sB = -r.z0, sm = Math.max(sD, -sB);
+  const xD = cxS + sD / sm * sMax, xB2 = cxS + sB / sm * sMax;
+  g += `<polygon points="${cxS},${yNA} ${xD},${yD} ${cxS},${yD}" fill="rgba(179,56,46,.20)" stroke="#b3382e" stroke-width="1.4"/>`;
+  g += `<polygon points="${cxS},${yNA} ${xB2},${base} ${cxS},${base}" fill="rgba(21,94,117,.20)" stroke="#155e75" stroke-width="1.4"/>`;
+  const Mth = stBr.Msw + r.Mw_hog;
+  g += lbl(xD + 6, yD + 6, `${fmt(Mth / r.Wd / 1000, 0)} МПа — растяжение`, 'start', '#b3382e');
+  g += lbl(cxS + 6, base + 16, `${fmt(Math.abs(Mth / r.Wb / 1000), 0)} МПа — сжатие`, 'start', '#155e75');
+  g += lbl(cxS + 6, yNA - 6, 'σ = 0', 'start', '#6b6b74');
+  g += lbl(cxS, yD - 20, 'эпюра σ по высоте (перегиб)', 'middle', '#6b6b74');
+
+  host.innerHTML = `<svg viewBox="0 0 900 300" class="geo-board">${g}</svg>`;
+}
+
+/* --- эпюры нагрузки, перерезывающей силы и момента по длине корпуса --- */
+function drawLengthDiagrams(r) {
+  const host = document.getElementById('b-length');
+  if (!host) return;
+  const sel = document.getElementById('in-case');
+  const mode = sel ? sel.value : 'hog';
+  const L = stBr.L, N = 40;
+  // погонный вес: полнее в средней части, добавка машинного отделения в корме
+  const w = [], sup = [];
+  for (let i = 0; i < N; i++) {
+    const t = (i + 0.5) / N;
+    w.push(0.62 + 0.55 * Math.sin(Math.PI * Math.pow(t, 0.9)) + (t < 0.22 ? 0.30 : 0));
+    // поддержание: строевая (полнее в середине) с волновой модуляцией
+    const wave = mode === 'still' ? 0 : (mode === 'hog' ? 1 : -1) * 0.45 * Math.cos(2 * Math.PI * (t - 0.5));
+    sup.push((0.70 + 0.52 * Math.sin(Math.PI * t)) * (1 + wave));
+  }
+  // уравновешивание: поддержание нормируем на суммарный вес и убираем момент
+  const sw = w.reduce((a, b) => a + b, 0), ss = sup.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < N; i++) sup[i] *= sw / ss;
+  let mw = 0, ms = 0;
+  for (let i = 0; i < N; i++) { const x = (i + 0.5) / N - 0.5; mw += w[i] * x; ms += sup[i] * x; }
+  for (let i = 0; i < N; i++) sup[i] += (mw - ms) * ((i + 0.5) / N - 0.5) * 12 / N;
+  const q = w.map((v, i) => v - sup[i]);
+  // интегрирование
+  const Q = [0], M = [0];
+  for (let i = 0; i < N; i++) Q.push(Q[i] + q[i]);
+  for (let i = 0; i < N; i++) M.push(M[i] + (Q[i] + Q[i + 1]) / 2);
+  // нормировка момента на расчётный (кН·м → МН·м)
+  const Mtarget = (mode === 'still' ? stBr.Msw : mode === 'hog' ? stBr.Msw + r.Mw_hog : stBr.Msw + r.Mw_sag) / 1000;
+  const Mmid = M[Math.round(N / 2)] || 1;
+  const kM = Mtarget / Mmid;
+  const Mn = M.map(v => v * kM), Qn = Q.map(v => v * kM * 4 / L * 10);
+
+  const W = 880, H = 108, padL = 74, padR = 130;
+  const plot = (arr, title, unit, color, y0, showMid) => {
+    const n = arr.length - 1;
+    const mx = Math.max(...arr.map(Math.abs), 1e-6);
+    const X = i => padL + i / n * (W - padL - padR);
+    const Y = v => y0 + H / 2 - v / mx * (H / 2 - 12);
+    let s = `<line x1="${padL}" y1="${Y(0)}" x2="${W - padR}" y2="${Y(0)}" stroke="#6b6b74" stroke-width="1"/>`;
+    const pts = arr.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    s += `<polygon points="${X(0)},${Y(0)} ${pts} ${X(n)},${Y(0)}" fill="${color}22" stroke="none"/>`;
+    s += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2"/>`;
+    s += `<text x="${padL}" y="${y0 + 12}" style="font:600 12px system-ui;fill:#3a3a42">${title}</text>`;
+    if (showMid) {
+      const im = Math.round(n / 2);
+      s += `<line x1="${X(im)}" y1="${y0 + 4}" x2="${X(im)}" y2="${y0 + H - 4}" stroke="#8a8a92" stroke-width="1" stroke-dasharray="4 3"/>`;
+      s += `<circle cx="${X(im)}" cy="${Y(arr[im])}" r="4" fill="${color}"/>`;
+      s += `<text x="${X(im) + 8}" y="${Y(arr[im]) - 6}" style="font:600 12px system-ui;fill:${color}">${fmt(arr[im], 0)} ${unit}</text>`;
+    }
+    s += `<text x="${W - padR + 8}" y="${Y(0) + 4}" style="font:11px system-ui;fill:#8a8a92">${unit}</text>`;
+    return s;
+  };
+  let g = '';
+  // подписи оконечностей
+  g += `<text x="${padL}" y="18" style="font:11px system-ui;fill:#6b6b74">корма</text>`;
+  g += `<text x="${W - padR - 26}" y="18" style="font:11px system-ui;fill:#6b6b74">нос</text>`;
+  // нагрузка: вес и поддержание отдельными кривыми + разность
+  const nq = q.length - 1;
+  const mxq = Math.max(...w, ...sup);
+  const Xq = i => padL + i / nq * (W - padL - padR);
+  const Yq = v => 24 + H - v / mxq * (H - 16);
+  g += `<polyline points="${w.map((v, i) => `${Xq(i).toFixed(1)},${Yq(v).toFixed(1)}`).join(' ')}"
+        fill="none" stroke="#b3382e" stroke-width="2"/>`;
+  g += `<polyline points="${sup.map((v, i) => `${Xq(i).toFixed(1)},${Yq(v).toFixed(1)}`).join(' ')}"
+        fill="none" stroke="#155e75" stroke-width="2"/>`;
+  g += `<text x="${W - padR + 8}" y="40" style="font:11px system-ui;fill:#b3382e">вес p(x)</text>`;
+  g += `<text x="${W - padR + 8}" y="58" style="font:11px system-ui;fill:#155e75">поддержание</text>`;
+  g += `<text x="${padL}" y="36" style="font:600 12px system-ui;fill:#3a3a42">Нагрузка по длине</text>`;
+  g += plot(q.map(v => v), 'Разность q(x) = p − γω', 'отн.', '#8a5b1d', 150, false);
+  g += plot(Qn, 'Перерезывающая сила N(x)', 'МН', '#155e75', 272, false);
+  g += plot(Mn, 'Изгибающий момент M(x)', 'МН·м', '#b3382e', 394, true);
+  host.innerHTML = `<svg viewBox="0 0 900 520" class="geo-board">${g}</svg>`;
 }
 
 /* конструктивный мидель с выносками к каждой связи; нейтральная ось и
@@ -245,6 +395,10 @@ function drawMidship(r) {
   if (main) main.insertBefore(d, main.children[2] || null);
 })();
 
+{
+  const sel = document.getElementById('in-case');
+  if (sel) sel.addEventListener('change', brusRender);
+}
 for (const [id, key] of [['in-L', 'L'], ['in-Bb', 'B'], ['in-Cb', 'Cb'], ['in-Msw', 'Msw']]) {
   const el = document.getElementById(id);
   el.addEventListener('input', e => { stBr[key] = +e.target.value || 1; brusRender(); });

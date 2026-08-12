@@ -222,6 +222,29 @@ function drawMidship(r) {
   host.innerHTML = `<svg viewBox="0 0 760 430" class="geo-board">${g}</svg>`;
 }
 
+/* приём размерений, переданных по URL из «Статики корабля» (solver → brus) */
+(function brusApplyQuery() {
+  const Q = new URLSearchParams(location.search);
+  const qn = k => { const v = parseFloat(Q.get(k)); return isFinite(v) ? v : null; };
+  const cl = (v, a, b) => Math.min(b, Math.max(a, v));
+  const got = [];
+  const L = qn('L'); if (L != null) { stBr.L = cl(L, 60, 300); got.push(`L = ${fmt(stBr.L, 0)} м`); }
+  const B = qn('B'); if (B != null) { stBr.B = cl(B, 10, 40); got.push(`B = ${fmt(stBr.B, 1)} м`); }
+  const Cb = qn('Cb'); if (Cb != null) { stBr.Cb = cl(Cb, 0.55, 0.85); got.push(`C_b = ${fmt(stBr.Cb, 3)}`); }
+  if (!got.length) return;
+  document.getElementById('in-L').value = stBr.L;
+  document.getElementById('in-Bb').value = stBr.B;
+  document.getElementById('in-Cb').value = stBr.Cb;
+  const d = document.createElement('div');
+  d.className = 'note tip';
+  d.innerHTML = `<b>Размерения переданы из «Статики корабля»</b> (расчёт посадки и остойчивости):
+    ${got.join('; ')} — подставлены во входы; волновые моменты IACS ниже считаются от них.
+    Момент на тихой воде и состав сечения задайте по своему проекту.
+    <a class="btn" href="brus" style="margin-left:10px">сбросить</a>`;
+  const main = document.querySelector('main.wrap');
+  if (main) main.insertBefore(d, main.children[2] || null);
+})();
+
 for (const [id, key] of [['in-L', 'L'], ['in-Bb', 'B'], ['in-Cb', 'Cb'], ['in-Msw', 'Msw']]) {
   const el = document.getElementById(id);
   el.addEventListener('input', e => { stBr[key] = +e.target.value || 1; brusRender(); });

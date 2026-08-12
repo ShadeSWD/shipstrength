@@ -193,3 +193,7 @@ footer.site .wrap { display: flex; flex-wrap: wrap; gap: 10px 30px; justify-cont
 a.card { text-decoration: none; color: inherit; }
 a.card:hover { border-color: var(--accent, #155e75); }
 a.card h3 { text-decoration: none; }
+
+/* кнопки-ссылки (передача данных между разделами) */
+a.btn { text-decoration: none; display: inline-block; }
+a.btn.primary:hover { color: #fff; }

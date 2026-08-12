@@ -27,7 +27,7 @@
       <div style="flex:1 1 480px">
         <h3 style="margin-top:0">Элементы сечения (редактируйте)</h3>
         <table style="width:100%;border-collapse:collapse;font:13.5px system-ui">
-          <thead><tr style="text-align:left"><th>Связь</th><th>A, см²</th><th>z от ОЛ, м</th><th>A·(z−z₀)²</th></tr></thead>
+          <thead><tr style="text-align:left"><th>Связь</th><th>A, см²</th><th>z от ОЛ, м</th><th>\(A\cdot(z-z_0)^2\)</th></tr></thead>
           <tbody id="els-rows"></tbody>
         </table>
       </div>
@@ -40,7 +40,7 @@
     </div>
     <h3>Решение по шагам (с подстановками)</h3>
     <div id="brus-steps" class="note tip"></div>
-    <h3>Напряжения σ = M/W</h3>
+    <h3>Напряжения \(\sigma = M/W\)</h3>
     <table style="width:100%;border-collapse:collapse;font:14px system-ui">
       <tbody id="brus-sigma"></tbody>
     </table>
@@ -53,9 +53,9 @@
     <a href="https://shadeswd.duckdns.org/ref/rmrs">либе РМРС справочника</a> —
     решатель считает по ним же, а проверить можно живым API:
     <a href="https://shadeswd.duckdns.org/ref/api/calc/waveMoments?L=100&B=16&Cb=0.7">api/calc/waveMoments</a>.</p>
-    <p class="small">Волновые моменты — по IACS UR S11: M<sub>w,пер</sub> =
-    +190·C·L²·B·C<sub>b</sub>·10⁻³, M<sub>w,прог</sub> = −110·C·L²·B·(C<sub>b</sub>+0,7)·10⁻³ кН·м,
-    C = 10,75 − ((300−L)/100)<sup>1,5</sup>; допускаемое 175/k МПа (k=1 для
+    <p class="small">Волновые моменты — по IACS UR S11: \(M_{w,\text{пер}} =
+    +190\cdot C\cdot L^2\cdot B\cdot C_b\cdot 10^{-3}\), \(M_{w,\text{прог}} = -110\cdot C\cdot L^2\cdot B\cdot(C_b + 0{,}7)\cdot 10^{-3}\) кН·м,
+    \(C = 10{,}75 - \left(\frac{300 - L}{100}\right)^{1{,}5}\); допускаемое 175/k МПа (k=1 для
     обычной стали). Момент на тихой воде задаётся из расчёта нагрузки —
     масштаб проверьте по <a href="sources">правилам Регистра</a>.</p>
   </div>
@@ -65,14 +65,14 @@
     <li>Составляют таблицу продольных связей миделевого сечения: площадь
     A<sub>i</sub> каждой связи и отстояние z<sub>i</sub> от основной линии
     (участвуют только непрерывные по длине связи; вырезы вычитаются).</li>
-    <li>Нейтральная ось: z₀ = ΣA<sub>i</sub>z<sub>i</sub> / ΣA<sub>i</sub>.</li>
-    <li>Момент инерции: I = ΣA<sub>i</sub>(z<sub>i</sub>−z₀)² (+ собственные
+    <li>Нейтральная ось: \(z_0 = \sum A_i z_i / \sum A_i\).</li>
+    <li>Момент инерции: \(I = \sum A_i(z_i - z_0)^2\) (+ собственные
     моменты высоких стенок).</li>
-    <li>Моменты сопротивления: W<sub>палубы</sub> = I/(z<sub>верх</sub>−z₀),
-    W<sub>днища</sub> = I/z₀.</li>
-    <li>Расчётный момент: M = M<sub>тихой воды</sub> ± M<sub>волновой</sub>
+    <li>Моменты сопротивления: \(W_{\text{палубы}} = I/(z_{\text{верх}} - z_0)\),
+    \(W_{\text{днища}} = I/z_0\).</li>
+    <li>Расчётный момент: \(M = M_{\text{тихой воды}} \pm M_{\text{волновой}}\)
     (перегиб/прогиб) — волновой по правилам (IACS/РС).</li>
-    <li>Напряжения σ = M/W в палубе и днище сравнивают с допускаемыми;
+    <li>Напряжения \(\sigma = M/W\) в палубе и днище сравнивают с допускаемыми;
     сжатые связи дополнительно проверяют на устойчивость (редукционные
     коэффициенты).</li>
   </ol>

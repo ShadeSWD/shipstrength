@@ -44,6 +44,15 @@
     <table style="width:100%;border-collapse:collapse;font:14px system-ui">
       <tbody id="brus-sigma"></tbody>
     </table>
+    <p class="small">Профили набора — из сортаментов справочника кластера:
+    <a href="https://shadeswd.duckdns.org/ref/gost-21937">полособульбы ГОСТ 21937</a>,
+    <a href="https://shadeswd.duckdns.org/ref/gost-8239">двутавры</a>,
+    <a href="https://shadeswd.duckdns.org/ref/gost-19903">толщины листа</a>;
+    свойства стали — <a href="https://shadeswd.duckdns.org/ref/materials">материалы</a>.
+    Формулы волновых моментов и W_min оцифрованы в
+    <a href="https://shadeswd.duckdns.org/ref/rmrs">либе РМРС справочника</a> —
+    решатель считает по ним же, а проверить можно живым API:
+    <a href="https://shadeswd.duckdns.org/ref/api/calc/waveMoments?L=100&B=16&Cb=0.7">api/calc/waveMoments</a>.</p>
     <p class="small">Волновые моменты — по IACS UR S11: M<sub>w,пер</sub> =
     +190·C·L²·B·C<sub>b</sub>·10⁻³, M<sub>w,прог</sub> = −110·C·L²·B·(C<sub>b</sub>+0,7)·10⁻³ кН·м,
     C = 10,75 − ((300−L)/100)<sup>1,5</sup>; допускаемое 175/k МПа (k=1 для

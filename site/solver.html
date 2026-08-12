@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Неразрезная балка: метод трёх моментов, эпюры Q и M, прогибы</title>
+<meta name="description" content="Решатель неразрезной многопролётной балки: уравнение трёх моментов, эпюры поперечных сил и изгибающих моментов, прогибы двойным интегрированием, реакции опор.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Неразрезная балка: эпюры и прогибы</h1>
+  <p class="lead">Классическая задача СМК и сопромата. Задайте число пролётов и
+  нагрузки — решатель составит уравнения трёх моментов, найдёт опорные моменты
+  прогонкой, построит эпюры Q и M, реакции и упругую линию (двойное
+  интегрирование M/EI). Решение валидировано по учебным случаям: qL²/8,
+  −qL²/8 на средней опоре двухпролётной, PL/4, прогиб 5qL⁴/384EI.</p>
+
+  <div class="panel">
+    <div class="controls">
+      <label>пролётов <input type="range" id="in-n" min="1" max="5" value="3">
+        <span class="readout" id="out-n">3</span></label>
+      <label>E, ГПа <input type="number" id="in-E" value="206" min="60" max="220" style="width:70px"></label>
+      <label>I, см⁴ <input type="number" id="in-I" value="8000" min="100" step="500" style="width:90px"></label>
+    </div>
+    <table style="border-collapse:collapse;font:14px system-ui" class="tbl">
+      <thead><tr style="text-align:left">
+        <th style="padding:4px 10px"></th><th>L, м</th><th>q, кН/м</th><th>P, кН</th><th>a (от левой опоры), м</th>
+      </tr></thead>
+      <tbody id="span-rows"></tbody>
+    </table>
+    <div id="b-scheme" style="margin-top:8px"></div>
+    <div class="caption">Схема балки: опоры шарнирные, по краям — моменты равны нулю</div>
+  </div>
+
+  <div class="panel"><div id="c-Q"></div></div>
+  <div class="panel"><div id="c-M"></div>
+    <p class="small">Знаки: положительный момент растягивает нижние волокна.
+    Обратите внимание на отрицательные моменты над промежуточными опорами —
+    ради них и существует метод трёх моментов.</p></div>
+  <div class="panel"><div id="c-v"></div></div>
+
+  <div class="panel">
+    <p id="react-out" style="font:14.5px system-ui"></p>
+    <p id="summary-out" style="font:14.5px system-ui"></p>
+  </div>
+
+  <h2>Как это решается вручную — по шагам</h2>
+  <ol>
+    <li>Неразрезную балку мысленно режут на однопролётные, вводя неизвестные
+    опорные моменты M<sub>i</sub> (левая и правая крайние опоры шарнирные:
+    M<sub>0</sub> = M<sub>n</sub> = 0).</li>
+    <li>Для каждой промежуточной опоры записывают <b>уравнение трёх
+    моментов</b>: L<sub>i</sub>M<sub>i−1</sub> + 2(L<sub>i</sub>+L<sub>i+1</sub>)M<sub>i</sub> +
+    L<sub>i+1</sub>M<sub>i+1</sub> = −6(A<sub>i</sub>a<sub>i</sub>/L<sub>i</sub> + B<sub>i+1</sub>b<sub>i+1</sub>/L<sub>i+1</sub>) —
+    справа «грузовые члены» от площадей балочных эпюр: qL³/4 для равномерной
+    нагрузки, Pa(L²−a²)/L для силы.</li>
+    <li>Систему (она трёхдиагональная) решают — вручную последовательным
+    исключением, здесь — прогонкой.</li>
+    <li>Эпюра M = балочная эпюра каждого пролёта + линейная «подкладка» между
+    опорными моментами; Q — её производная; реакции — скачки Q на опорах.</li>
+    <li>Прогибы: v'' = M/EI, дважды интегрируем, константы — из условий
+    v = 0 на опорах.</li>
+  </ol>
+</main>
+<script src="assets/site.js" data-root="./" data-page="solver"></script>
+<script src="assets/geo.js"></script>
+<script src="assets/beams.js"></script>
+<script src="assets/solverui.js"></script>
+</body>
+</html>

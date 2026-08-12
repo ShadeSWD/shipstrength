@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Общая прочность: эквивалентный брус и волновые моменты IACS</title>
+<meta name="description" content="Проверочный расчёт общей продольной прочности корпуса: нейтральная ось и момент инерции сечения по элементам, волновой изгибающий момент по IACS UR S11, напряжения палубы и днища.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Общая прочность: эквивалентный брус</h1>
+  <p class="lead">Корпус на волне работает как одна огромная балка: на вершине
+  волны — перегиб (палуба растянута), на подошве — прогиб. Проверочный расчёт:
+  собрать все продольные связи миделевого сечения в <b>эквивалентный брус</b>,
+  найти нейтральную ось и момент сопротивления, приложить изгибающий момент
+  (тихая вода + волна) и сравнить напряжения с допускаемыми.</p>
+
+  <div class="panel">
+    <div class="controls">
+      <label>L, м <input type="number" id="in-L" value="100" min="60" max="300" style="width:70px"></label>
+      <label>B, м <input type="number" id="in-Bb" value="16" min="10" max="40" style="width:64px"></label>
+      <label>C<sub>b</sub> <input type="number" id="in-Cb" value="0.7" min="0.55" max="0.85" step="0.01" style="width:64px"></label>
+      <label>M<sub>тв</sub>, кН·м <input type="number" id="in-Msw" value="180000" step="10000" style="width:110px"></label>
+    </div>
+    <div class="boards">
+      <div style="flex:1 1 480px">
+        <h3 style="margin-top:0">Элементы сечения (редактируйте)</h3>
+        <table style="width:100%;border-collapse:collapse;font:13.5px system-ui">
+          <thead><tr style="text-align:left"><th>Связь</th><th>A, см²</th><th>z от ОЛ, м</th><th>A·(z−z₀)²</th></tr></thead>
+          <tbody id="els-rows"></tbody>
+        </table>
+      </div>
+      <div style="flex:1 1 380px">
+        <div id="b-section"></div>
+        <table style="width:100%;border-collapse:collapse;font:14px system-ui">
+          <tbody id="brus-out"></tbody>
+        </table>
+      </div>
+    </div>
+    <h3>Напряжения σ = M/W</h3>
+    <table style="width:100%;border-collapse:collapse;font:14px system-ui">
+      <tbody id="brus-sigma"></tbody>
+    </table>
+    <p class="small">Волновые моменты — по IACS UR S11: M<sub>w,пер</sub> =
+    +190·C·L²·B·C<sub>b</sub>·10⁻³, M<sub>w,прог</sub> = −110·C·L²·B·(C<sub>b</sub>+0,7)·10⁻³ кН·м,
+    C = 10,75 − ((300−L)/100)<sup>1,5</sup>; допускаемое 175/k МПа (k=1 для
+    обычной стали). Момент на тихой воде задаётся из расчёта нагрузки —
+    масштаб проверьте по <a href="sources">правилам Регистра</a>.</p>
+  </div>
+
+  <h2>Как это считается вручную — по шагам</h2>
+  <ol>
+    <li>Составляют таблицу продольных связей миделевого сечения: площадь
+    A<sub>i</sub> каждой связи и отстояние z<sub>i</sub> от основной линии
+    (участвуют только непрерывные по длине связи; вырезы вычитаются).</li>
+    <li>Нейтральная ось: z₀ = ΣA<sub>i</sub>z<sub>i</sub> / ΣA<sub>i</sub>.</li>
+    <li>Момент инерции: I = ΣA<sub>i</sub>(z<sub>i</sub>−z₀)² (+ собственные
+    моменты высоких стенок).</li>
+    <li>Моменты сопротивления: W<sub>палубы</sub> = I/(z<sub>верх</sub>−z₀),
+    W<sub>днища</sub> = I/z₀.</li>
+    <li>Расчётный момент: M = M<sub>тихой воды</sub> ± M<sub>волновой</sub>
+    (перегиб/прогиб) — волновой по правилам (IACS/РС).</li>
+    <li>Напряжения σ = M/W в палубе и днище сравнивают с допускаемыми;
+    сжатые связи дополнительно проверяют на устойчивость (редукционные
+    коэффициенты).</li>
+  </ol>
+</main>
+<script src="assets/site.js" data-root="./" data-page="brus"></script>
+<script src="assets/geo.js"></script>
+<script src="assets/brus.js"></script>
+</body>
+</html>

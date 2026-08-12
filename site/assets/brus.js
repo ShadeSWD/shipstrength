@@ -99,19 +99,24 @@ function brusRender() {
   for (const e of stBr.els) { SA += e.A; SAz += e.A * e.z; }
   const st1 = [];
   st1.push(`<h4 style="margin:8px 0 2px">Шаг 1. Нейтральная ось</h4>`);
+  st1.push(`<p style="margin:2px 0 6px;font:13px system-ui;color:#6b6b74">Это центр тяжести сечения: относительно этой оси корпус изгибается. Всё, что выше, при перегибе растягивается, что ниже — сжимается (при прогибе наоборот). Ошибка в z₀ сдвигает ВСЕ плечи (zᵢ−z₀), поэтому шаг проверяют первым.</p>`);
   st1.push(stepLine('z₀ = ΣAᵢzᵢ / ΣAᵢ', `${fmt(SAz, 0)} / ${fmt(SA, 0)}`, `${fmt(r.z0, 2)} м`));
   st1.push(`<h4 style="margin:8px 0 2px">Шаг 2. Момент инерции</h4>`);
+  st1.push(`<p style="margin:2px 0 6px;font:13px system-ui;color:#6b6b74">Мера сопротивления сечения изгибу. Каждая связь входит переносным членом Aᵢ(zᵢ−z₀)² — работает квадрат расстояния до нейтральной оси, поэтому палуба и днище (дальше всех от оси) дают львиную долю I, а связи у самой оси (борт в середине) почти не участвуют. Высокие вертикальные стенки добавляют собственный момент A·h²/12.</p>`);
   st1.push(stepLine('I = ΣAᵢ(zᵢ−z₀)² + Σi_соб', `${fmt(r.I - r.Iown, 2)} + ${fmt(r.Iown, 2)}`, `${fmt(r.I, 2)} м⁴`));
   st1.push(`<h4 style="margin:8px 0 2px">Шаг 3. Моменты сопротивления</h4>`);
+  st1.push(`<p style="margin:2px 0 6px;font:13px system-ui;color:#6b6b74">W = I/расстояние до крайнего волокна. Их два, потому что нейтральная ось не посередине: до палубы и до днища расстояния разные — где дальше, там W меньше и напряжение больше.</p>`);
   st1.push(stepLine('W_палубы = I/(z_верх − z₀)', `${fmt(r.I, 2)} / (${fmt(r.zTop, 2)} − ${fmt(r.z0, 2)})`, `${fmt(r.Wd, 2)} м³`));
   st1.push(stepLine('W_днища = I/z₀', `${fmt(r.I, 2)} / ${fmt(r.z0, 2)}`, `${fmt(r.Wb, 2)} м³`));
   st1.push(`<h4 style="margin:8px 0 2px">Шаг 4. Волновые моменты (РМРС 1.4.4.1 / IACS UR S11)</h4>`);
+  st1.push(`<p style="margin:2px 0 6px;font:13px system-ui;color:#6b6b74">Стандартизованная волна правил: коэффициент c_w зависит только от длины, момент — от главных размерений и полноты C_b. Перегиб (вершина волны на миделе) растягивает палубу, прогиб (подошва) — днище; прогибочный момент больше по модулю из-за члена (C_b+0,7).</p>`);
   st1.push(stepLine('c_w = 10,75 − ((300−L)/100)^1,5', L <= 90 ? `0,0856·${L}` : `10,75 − ((300−${L})/100)^1,5`, fmt(r.C, 2)));
   st1.push(stepLine('M_w,пер = 190·c_w·B·L²·C_b·10⁻³',
     `190·${fmt(r.C, 2)}·${Bw}·${L}²·${fmt(Cb, 2)}·10⁻³`, `${fmt(r.Mw_hog / 1000, 0)} МН·м`));
   st1.push(stepLine('M_w,прог = −110·c_w·B·L²·(C_b+0,7)·10⁻³',
     `−110·${fmt(r.C, 2)}·${Bw}·${L}²·${fmt(Cb + 0.7, 2)}·10⁻³`, `${fmt(r.Mw_sag / 1000, 0)} МН·м`));
   st1.push(`<h4 style="margin:8px 0 2px">Шаг 5. Напряжения (перегиб)</h4>`);
+  st1.push(`<p style="margin:2px 0 6px;font:13px system-ui;color:#6b6b74">Расчётный момент = тихая вода + волна, напряжение σ = M/W сравнивается с допускаемым 175/k МПа. Для прогиба расчёт повторяют с M_w,прог — тогда критично днище, а сжатую палубу проверяют на устойчивость (редуцирование, гл. 6 теории).</p>`);
   const Mth = stBr.Msw + r.Mw_hog;
   st1.push(stepLine('M = M_тв + M_w,пер', `${fmt(stBr.Msw / 1000, 0)} + ${fmt(r.Mw_hog / 1000, 0)}`, `${fmt(Mth / 1000, 0)} МН·м`));
   st1.push(stepLine('σ_палубы = M/W_палубы', `${fmt(Mth / 1000, 0)}·10³ / ${fmt(r.Wd, 2)} / 10³`, `${fmt(Mth / r.Wd / 1000, 0)} МПа`));
@@ -119,31 +124,102 @@ function brusRender() {
   const stepsEl = document.getElementById('brus-steps');
   if (stepsEl) stepsEl.innerHTML = st1.join('');
 
-  const B2 = new Board('#b-section', { w: 460, h: 330 });
-  B2.clear();
-  const cx = 230, base = 300, k = 26;
-  const half = stBr.B / 2 * 12;
-  B2.poly([[cx - half, base], [cx - half, base - 9.6 * k], [cx + half, base - 9.6 * k], [cx + half, base]], 'ln-thin gray', 'main', true);
-  for (const e of stBr.els) {
-    const wpx = clamp(e.A / 500, 1.6, 6); // «толщина листа» на эскизе
-    if (e.kind === 'v') {
-      const zt = base - (e.z + e.hgt / 2) * k, zb = base - (e.z - e.hgt / 2) * k;
-      for (const sgn of [-1, 1]) {
-        const ln = B2.line([cx + sgn * half, zt], [cx + sgn * half, zb], 'ln blue');
-        ln.style.strokeWidth = wpx;
-      }
-    } else {
-      const y = base - e.z * k;
-      // палуба/днище — на всю ширину; внутренние — чуть уже
-      const w = e.z > 8.5 || e.z < 0.2 ? half : half * 0.86;
-      const ln = B2.line([cx - w, y], [cx + w, y], 'ln blue');
-      ln.style.strokeWidth = wpx;
-    }
-  }
+  // --- разбор роли каждой связи ---
+  const roles = [
+    'верхний «поясок» эквивалентного бруса: дальше всех от нейтральной оси, при перегибе растянута — обычно самое напряжённое место корпуса;',
+    'продольные рёбра жёсткости палубы: работают вместе с настилом (тот же z), добавляют площадь пояску и держат пластину от выпучивания;',
+    'утолщённый верхний пояс бортовой обшивки: соединяет палубу с бортом, из-за высокого z вносит заметный вклад; классическое место усталостных трещин;',
+    'стенка «двутавра»: сама по себе почти не даёт I (её центр у нейтральной оси, плечо мало́), но связывает пояски и несёт касательные напряжения от перерезывающей силы;',
+    'скруглённый переход борт–днище: работает как нижний угловой пояс и добавляет собственный момент инерции как высокая стенка;',
+    'второй (нижний) поясок: настил двойного дна поднят над обшивкой, поэтому его плечо меньше днищевого, но площадь велика;',
+    'продольный набор днища: как и рёбра палубы — добавка к нижнему пояску;',
+    'нижний «поясок»: при прогибе на волне растянуто, при перегибе сжато — проверяется и на прочность, и на устойчивость.',
+  ];
+  const notesEl = document.getElementById('brus-els-notes');
+  if (notesEl) notesEl.innerHTML = stBr.els.map((e, i) => {
+    const lever = e.z - r.z0;
+    const part = e.A * 1e-4 * lever * lever / r.I * 100;
+    return `<li><b>${e.name}</b> (A=${fmt(e.A, 0)} см², z=${fmt(e.z, 2)} м, плечо ${fmt(lever, 2)} м,
+      вклад в I ≈ ${fmt(part, 0)} %): ${roles[i] || ''}</li>`;
+  }).join('');
+
+  drawMidship(r);
+}
+
+/* конструктивный мидель с выносками к каждой связи; нейтральная ось и
+ * подписи живые (пересчитываются при правке таблицы) */
+function drawMidship(r) {
+  const host = document.getElementById('b-section');
+  if (!host) return;
+  const e = stBr.els, k = 24, base = 392, cx = 360;
+  const half = Math.min(stBr.B, 20) / 2 * k;
+  const zTop = 9.6, yDeck = base - zTop * k, Rb = 1.7 * k;
+  const xl = cx - half, xr = cx + half;
+  const yb = base, yBilge = base - 1.7 * k, yVd = base - e[5].z * k;
   const yna = base - r.z0 * k;
-  B2.line([cx - half - 24, yna], [cx + half + 24, yna], 'ln red ln-dash');
-  B2.label([cx + half - 92, yna - 8], 'нейтральная ось', 'red', 0, 0);
-  B2.label([cx - half - 40, base - 9.6 * k - 12], 'мидель-сечение (толщина ∝ площади связи)', 'gray', 0, 0);
+  const lbl = (x, y, t, anchor, color) =>
+    `<text x="${x}" y="${y}" text-anchor="${anchor}" style="font:10.5px system-ui;fill:${color || '#3a3a42'}">${t}</text>`;
+  const lead = (x1, y1, x2, y2) =>
+    `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8a8a92" stroke-width=".8"/>`;
+  let g = '';
+  // контур обшивки
+  g += `<path d="M ${xl} ${yDeck + 4} L ${xl} ${yBilge} Q ${xl} ${yb} ${xl + Rb} ${yb}
+        L ${xr - Rb} ${yb} Q ${xr} ${yb} ${xr} ${yBilge} L ${xr} ${yDeck + 4}"
+        fill="none" stroke="#16161a" stroke-width="2.2"/>`;
+  // палуба с погибью
+  g += `<path d="M ${xl} ${yDeck + 4} Q ${cx} ${yDeck - 6} ${xr} ${yDeck + 4}"
+        fill="none" stroke="#155e75" stroke-width="3"/>`;
+  // ширстрек
+  const ySheerB = base - (e[2].z - e[2].hgt / 2) * k;
+  g += `<line x1="${xl}" y1="${yDeck + 4}" x2="${xl}" y2="${ySheerB}" stroke="#155e75" stroke-width="4"/>`;
+  g += `<line x1="${xr}" y1="${yDeck + 4}" x2="${xr}" y2="${ySheerB}" stroke="#155e75" stroke-width="4"/>`;
+  // скуловой пояс
+  g += `<path d="M ${xl} ${yBilge} Q ${xl} ${yb} ${xl + Rb} ${yb}" fill="none" stroke="#155e75" stroke-width="3.4"/>`;
+  g += `<path d="M ${xr} ${yBilge} Q ${xr} ${yb} ${xr - Rb} ${yb}" fill="none" stroke="#155e75" stroke-width="3.4"/>`;
+  // настил второго дна + флоры
+  g += `<line x1="${xl + 6}" y1="${yVd}" x2="${xr - 6}" y2="${yVd}" stroke="#155e75" stroke-width="2.4"/>`;
+  for (let x = xl + 40; x < xr - 20; x += 56)
+    g += `<line x1="${x}" y1="${yVd}" x2="${x}" y2="${yb}" stroke="#b9b7ae" stroke-width="1.2"/>`;
+  // продольные рёбра — зубчики
+  const yRd = base - e[1].z * k, yRb2 = base - e[6].z * k;
+  for (let x = xl + 24; x < xr - 12; x += 36) {
+    g += `<line x1="${x}" y1="${yDeck + 5}" x2="${x}" y2="${yRd + 4}" stroke="#155e75" stroke-width="1.4"/>`;
+    g += `<line x1="${x + 18}" y1="${yb - 1}" x2="${x + 18}" y2="${yRb2 - 3}" stroke="#155e75" stroke-width="1.4"/>`;
+  }
+  // ДП и ОЛ
+  g += `<line x1="${cx}" y1="${yDeck - 16}" x2="${cx}" y2="${yb + 10}" stroke="#8a8a92" stroke-width=".9" stroke-dasharray="8 4"/>`;
+  g += `<line x1="${xl - 34}" y1="${yb}" x2="${xr + 44}" y2="${yb}" stroke="#6b6b74" stroke-width="1"/>`;
+  g += lbl(xl - 34, yb + 16, 'ОЛ (основная линия)', 'start', '#6b6b74');
+  g += lbl(cx + 4, yDeck - 20, 'ДП', 'start', '#8a8a92');
+  // нейтральная ось — живая
+  g += `<line x1="${xl - 34}" y1="${yna}" x2="${xr + 34}" y2="${yna}" stroke="#b3382e" stroke-width="1.6" stroke-dasharray="7 4"/>`;
+  g += lbl(xl - 34, yna - 6, 'нейтральная ось', 'start', '#b3382e');
+  // размер z0 — по ДП, стрелка от ОЛ до нейтральной оси
+  const xd = cx + 14;
+  g += `<line x1="${xd}" y1="${yb - 2}" x2="${xd}" y2="${yna + 2}" stroke="#b3382e" stroke-width="1.2"/>`;
+  g += `<path d="M ${xd} ${yb - 2} l -4 -8 l 8 0 z M ${xd} ${yna + 2} l -4 8 l 8 0 z" fill="#b3382e"/>`;
+  g += `<text x="${xd + 8}" y="${(yb + yna) / 2 + 4}" style="font:11px system-ui;fill:#b3382e">z₀ = ${fmt(r.z0, 2)} м</text>`;
+  // выноски: текст в колонках, лидер начинается от фиксированной кромки колонки
+  const co = [
+    [0, 6,   104, 'start', cx - 80, yDeck - 1],
+    [1, 6,   146, 'start', xl + 60, yRd + 2],
+    [2, 754, 118, 'end',   xr + 2, (yDeck + ySheerB) / 2],
+    [3, 6,   252, 'start', xl, base - e[3].z * k],
+    [4, 754, 328, 'end',   xr - 4, yb - 12],
+    [5, 6,   330, 'start', xl + 90, yVd],
+    [6, 754, 258, 'end',   xr - 42, yRb2 - 4],
+    [7, 754, 400, 'end',   cx + 90, yb],
+  ];
+  for (const [i, tx, ty, anchor, ax, ay] of co) {
+    const el = e[i];
+    const edge = anchor === 'start' ? 148 : 604; // кромка текстовой колонки
+    g += lead(edge, ty - 3, ax, ay);
+    g += lbl(tx, ty - 8, el.name, anchor);
+    g += lbl(tx, ty + 4, `A=${fmt(el.A, 0)} см², z=${fmt(el.z, 2)} м`, anchor, '#6b6b74');
+  }
+  g += lead(330, yb + 8, 330, yb - 12);
+  g += lbl(276, yb + 20, 'флоры (поперечные — в брус не входят)', 'start', '#8a8a92');
+  host.innerHTML = `<svg viewBox="0 0 760 430" class="geo-board">${g}</svg>`;
 }
 
 for (const [id, key] of [['in-L', 'L'], ['in-Bb', 'B'], ['in-Cb', 'Cb'], ['in-Msw', 'Msw']]) {

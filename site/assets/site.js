@@ -21,7 +21,7 @@
   const header = document.createElement('header');
   header.className = 'site';
   header.innerHTML = `<div class="wrap">
-    <a class="logo" href="${root}">${logoSvg}<span>Строймех корабля</span></a>
+    <a class="logo" href="${root}">${logoSvg}<span>Строительная механика корабля</span></a>
     <nav class="top">${nav.map(({ href, key, title }) =>
       `<a href="${root}${href}" class="${page === key ? 'on' : ''}">${title}</a>`).join('')}</nav>
   </div>`;
@@ -29,7 +29,7 @@
   const footer = document.createElement('footer');
   footer.className = 'site';
   footer.innerHTML = `<div class="wrap">
-    <div>Учебный сайт: строительная механика и прочность корабля · расчёты в браузере</div>
+    <div>Учебный сайт по курсу «Строительная механика корабля» · расчёты в браузере</div>
     <div>
       <a href="https://shadeswd.duckdns.org/shipstat/">Статика корабля</a> ·
       <a href="https://shadeswd.duckdns.org/descgeo/">Начерталка</a> ·

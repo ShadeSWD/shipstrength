@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Глава 2. Неразрезные балки и уравнение трёх моментов</title>
+<meta name="description" content="Статическая неопределимость, выбор основных неизвестных, вывод уравнения трёх моментов, грузовые члены для q и P, решение системы и построение эпюр по шагам.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1>Глава 2. Неразрезные балки: метод трёх моментов</h1>
+
+  <h2>2.1. Откуда неопределимость</h2>
+  <p>Балка на n+1 опоре имеет n+1 реакцию, а уравнений равновесия — два.
+  «Лишних» неизвестных n−1. Метод трёх моментов выбирает их гениально:
+  ставим над каждой промежуточной опорой <b>шарнир</b> и вводим парные
+  моменты M<sub>i</sub>. Каждый пролёт превращается в простую балку — всё
+  из главы 1 применимо, — а неизвестные M<sub>i</sub> находим из условия,
+  что балка на самом деле целая.</p>
+  <svg viewBox="0 0 640 210" class="geo-board" style="max-width:640px">
+    <line x1="40" y1="50" x2="600" y2="50" stroke="#16161a" stroke-width="3"/>
+    <g fill="#fff" stroke="#16161a" stroke-width="1.2">
+      <path d="M 40 50 l -7 12 l 14 0 z"/><path d="M 230 50 l -7 12 l 14 0 z"/>
+      <path d="M 420 50 l -7 12 l 14 0 z"/><path d="M 600 50 l -7 12 l 14 0 z"/>
+    </g>
+    <text x="34" y="80" style="font:10px system-ui;fill:#6b6b74">0</text>
+    <text x="224" y="80" style="font:10px system-ui;fill:#6b6b74">1</text>
+    <text x="414" y="80" style="font:10px system-ui;fill:#6b6b74">2</text>
+    <text x="594" y="80" style="font:10px system-ui;fill:#6b6b74">3</text>
+    <text x="120" y="40" style="font:11px system-ui;fill:#3a3a42">L₁</text>
+    <text x="310" y="40" style="font:11px system-ui;fill:#3a3a42">L₂</text>
+    <text x="495" y="40" style="font:11px system-ui;fill:#3a3a42">L₃</text>
+    <line x1="40" y1="150" x2="222" y2="150" stroke="#16161a" stroke-width="2.4"/>
+    <line x1="238" y1="150" x2="412" y2="150" stroke="#16161a" stroke-width="2.4"/>
+    <line x1="428" y1="150" x2="600" y2="150" stroke="#16161a" stroke-width="2.4"/>
+    <circle cx="230" cy="150" r="5" fill="#fff" stroke="#b3382e" stroke-width="1.6"/>
+    <circle cx="420" cy="150" r="5" fill="#fff" stroke="#b3382e" stroke-width="1.6"/>
+    <path d="M 205 132 a 22 22 0 0 1 18 -8" fill="none" stroke="#b3382e" stroke-width="1.6"/>
+    <path d="M 223 124 l -7 -1 l 4 6 z" fill="#b3382e"/>
+    <path d="M 255 132 a 22 22 0 0 0 -18 -8" fill="none" stroke="#b3382e" stroke-width="1.6"/>
+    <path d="M 237 124 l 7 -1 l -4 6 z" fill="#b3382e"/>
+    <text x="196" y="115" style="font:11px system-ui;fill:#b3382e">M₁</text>
+    <path d="M 395 132 a 22 22 0 0 1 18 -8" fill="none" stroke="#b3382e" stroke-width="1.6"/>
+    <path d="M 413 124 l -7 -1 l 4 6 z" fill="#b3382e"/>
+    <path d="M 445 132 a 22 22 0 0 0 -18 -8" fill="none" stroke="#b3382e" stroke-width="1.6"/>
+    <path d="M 427 124 l 7 -1 l -4 6 z" fill="#b3382e"/>
+    <text x="386" y="115" style="font:11px system-ui;fill:#b3382e">M₂</text>
+    <text x="40" y="196" style="font:11px system-ui;fill:#6b6b74">основная система: шарниры над опорами + парные опорные моменты</text>
+  </svg>
+
+  <h2>2.2. Вывод уравнения</h2>
+  <p>Условие целостности: угол поворота конца пролёта i слева от опоры i
+  равен углу начала пролёта i+1 справа. Углы от нагрузки в простом пролёте
+  выражаются через <b>площадь ω грузовой эпюры M⁰</b> и её центр тяжести
+  (правило Верещагина): θ = ω·c/(L·EI). Складывая вклады нагрузки и парных
+  моментов, для каждой промежуточной опоры получаем</p>
+  <p style="text-align:center"><b>L<sub>i</sub>·M<sub>i−1</sub> +
+  2(L<sub>i</sub>+L<sub>i+1</sub>)·M<sub>i</sub> +
+  L<sub>i+1</sub>·M<sub>i+1</sub> = −6(B<sub>i</sub>ф + A<sub>i+1</sub>ф)</b>,</p>
+  <p>где грузовые члены B<sub>ф</sub> = ω·c/L, A<sub>ф</sub> = ω·c′/L. Для
+  стандартных нагрузок они сведены в таблицы:</p>
+  <ul>
+    <li>равномерная q по пролёту: 6B/L = 6A/L = <b>qL³/4</b>;</li>
+    <li>сила P на отстоянии a (b = L−a): слева <b>Pa(L²−a²)/L</b>,
+    справа <b>Pb(L²−b²)/L</b>.</li>
+  </ul>
+  <p>Система трёхдиагональна (каждое уравнение цепляет три соседних момента)
+  — решается прогонкой за один проход; так делает
+  <a href="solver">решатель</a>, и он же печатает эти уравнения с вашими
+  числами в «Решении по шагам».</p>
+
+  <h2>2.3. Порядок расчёта — по шагам</h2>
+  <ol>
+    <li>разбить балку на пролёты, выписать L<sub>i</sub> и нагрузки;</li>
+    <li>посчитать грузовые члены каждого пролёта (таблица выше);</li>
+    <li>составить уравнение трёх моментов для каждой промежуточной опоры
+    (крайние моменты = 0 на шарнирных концах; консоль даёт известный
+    момент);</li>
+    <li>решить систему → M<sub>i</sub>;</li>
+    <li>эпюры: M(x) = M⁰(x) + M<sub>лев</sub>(1−x/L) + M<sub>прав</sub>·x/L,
+    Q(x) = Q⁰(x) + (M<sub>прав</sub>−M<sub>лев</sub>)/L;</li>
+    <li>реакции — скачки Q на опорах; контроль: ΣR = суммарной нагрузке.</li>
+  </ol>
+
+  <h2>2.4. Контрольные эталоны</h2>
+  <p>Двухпролётная балка L+L с q: M₁ = −qL²/8. Заделка ≡ бесконечный соседний
+  пролёт. Симметрия должна давать симметричные моменты — быстрые проверки
+  перед сдачей расчёта.</p>
+  <p><a href="t-bend">← Глава 1</a> · <a href="t-elastic">Глава 3 →</a></p>
+</main>
+<script src="assets/site.js" data-root="./" data-page="theory"></script>
+</body>
+</html>

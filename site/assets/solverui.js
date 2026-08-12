@@ -116,8 +116,46 @@ function renderSpanEditor() {
   }));
 }
 
+function beamSteps(d) {
+  const sp = stB.spans, n = sp.length;
+  const out = [];
+  out.push('<h4 style="margin:8px 0 2px">Шаг 1. Грузовые члены пролётов</h4>');
+  sp.forEach((s, i) => {
+    const t = loadTerms(s);
+    const parts = [];
+    if (s.q) parts.push(`q: qL³/4 = ${s.q}·${s.L}³/4 = ${fmt(s.q * s.L ** 3 / 4, 1)}`);
+    if (s.P) {
+      const a = clamp(s.a, 0, s.L), b = s.L - a;
+      parts.push(`P слева: Pa(L²−a²)/L = ${s.P}·${a}·(${s.L}²−${a}²)/${s.L} = ${fmt(s.P * a * (s.L * s.L - a * a) / s.L, 1)};
+        справа: Pb(L²−b²)/L = ${fmt(s.P * b * (s.L * s.L - b * b) / s.L, 1)}`);
+    }
+    out.push(`<div style="font:13.5px system-ui;margin:3px 0">пролёт ${i + 1}: ${parts.join('; ') || 'нагрузки нет'} → 6B/L = ${fmt(t.right, 1)}, 6A/L = ${fmt(t.left, 1)} кН·м²</div>`);
+  });
+  if (n > 1) {
+    out.push('<h4 style="margin:8px 0 2px">Шаг 2. Уравнения трёх моментов</h4>');
+    for (let i = 0; i < n - 1; i++) {
+      const Ll = sp[i].L, Lr = sp[i + 1].L;
+      const tl = loadTerms(sp[i]), tr = loadTerms(sp[i + 1]);
+      out.push(`<div style="font:13.5px system-ui;margin:3px 0">опора ${i + 1}:
+        ${Ll}·M${i} + ${2 * (Ll + Lr)}·M${i + 1} + ${Lr}·M${i + 2} = −(${fmt(tl.right, 1)} + ${fmt(tr.left, 1)}) = ${fmt(-(tl.right + tr.left), 1)}</div>`);
+    }
+    out.push('<h4 style="margin:8px 0 2px">Шаг 3. Решение системы (прогонка)</h4>');
+  } else {
+    out.push('<h4 style="margin:8px 0 2px">Шаг 2–3. Один пролёт: опорные моменты нулевые</h4>');
+  }
+  out.push(`<div style="font:14px system-ui">${d.Ms.map((m, i) => `M<sub>${i}</sub> = <b>${fmt(m, 2)}</b>`).join('; ')} кН·м</div>`);
+  out.push('<h4 style="margin:8px 0 2px">Шаг 4. Эпюры и реакции</h4>');
+  out.push(`<div style="font:13.5px system-ui">M(x) = M_балочная(x) + M_лев·(1−x/L) + M_прав·(x/L);
+    Q(x) = Q_балочная(x) + (M_прав − M_лев)/L; реакции — скачки Q:
+    ${d.R.map((r, i) => `R<sub>${i}</sub>=${fmt(r, 1)}`).join(', ')} кН
+    (ΣR = ${fmt(d.R.reduce((a, b) => a + b, 0), 1)} кН — сверьте с суммарной нагрузкой)</div>`);
+  const el = document.getElementById('beam-steps');
+  if (el) el.innerHTML = out.join('');
+}
+
 function recomputeBeam() {
   const d = diagrams();
+  beamSteps(d);
   drawScheme(document.getElementById('b-scheme'), d.sup, stB.spans);
   diagChart(document.getElementById('c-Q'), 'Эпюра поперечных сил Q', 'кН', d.X, d.Q, { sup: d.sup });
   diagChart(document.getElementById('c-M'), 'Эпюра изгибающих моментов M', 'кН·м', d.X, d.M,

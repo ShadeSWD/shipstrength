@@ -12,24 +12,45 @@
     <path d="M8 20 Q 15 9 22 20" fill="none" stroke="#e2a13b" stroke-width="2"/>
   </svg>`;
   const nav = [
-    { href: '', key: 'index', title: 'Главная' },
-    { href: 'solver', key: 'solver', title: 'Балки и эпюры' },
-    { href: 'brus', key: 'brus', title: 'Общая прочность' },
-    { href: 'theory', key: 'theory', title: 'Теория' },
-    { href: 'sources', key: 'sources', title: 'Источники' },
+    { h: '', k: 'index', t: 'Обзор' },
+    { t: 'Теория', h: 'theory', drop: [
+      { h: 'theory', k: 'theory', t: 'Оглавление курса' },
+      { h: 't-elastic', k: 'theory', t: '1. Расчётные схемы и эпюры' },
+      { h: 't-bend', k: 'theory', t: '2. Напряжения при изгибе' },
+      { h: 't-3m', k: 'theory', t: '3. Уравнение трёх моментов' },
+      { h: 't-energy', k: 'theory', t: '4. Энергетические методы' },
+      { h: 't-grillage', k: 'theory', t: '5. Судовые перекрытия' },
+      { h: 't-hullgirder', k: 'theory', t: '6. Общая прочность' },
+      { h: 't-plates', k: 'theory', t: '7. Пластины' },
+      { h: 't-ultimate', k: 'theory', t: '8. Предельная прочность' },
+    ] },
+    { t: 'Задачи', h: 'solver', drop: [
+      { h: 'solver', k: 'solver', t: 'Неразрезная балка' },
+      { h: 'brus', k: 'brus', t: 'Эквивалентный брус' },
+    ] },
+    { h: 'sources', k: 'sources', t: 'Источники' },
   ];
+  const navLink = (it) =>
+    `<a href="${root}${it.h}" class="${page === it.k ? 'on' : ''}">${it.t}</a>`;
+  const navHtml = nav.map((g) => {
+    if (!g.drop) return navLink(g);
+    const on = g.drop.some((it) => page === it.k) ? 'on' : '';
+    return `<span class="nav-drop"><a href="${root}${g.h}" class="${on}">${g.t} ▾</a>`
+      + `<span class="drop">${g.drop.map(navLink).join('')}</span></span>`;
+  }).join('');
   const header = document.createElement('header');
   header.className = 'site';
   header.innerHTML = `<div class="wrap">
     <a class="logo" href="${root}">${logoSvg}<span>Строительная механика корабля</span></a>
-    <nav class="top">${nav.map(({ href, key, title }) =>
-      `<a href="${root}${href}" class="${page === key ? 'on' : ''}">${title}</a>`).join('')}</nav>
+    <nav class="top">${navHtml}</nav>
   </div>`;
   document.body.prepend(header);
+  const onReady = (fn) => (document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', fn) : fn());
   const footer = document.createElement('footer');
   footer.className = 'site';
   footer.innerHTML = `<div class="wrap">
     <div>Учебный сайт по курсу «Строительная механика корабля» · расчёты в браузере</div>
   </div>`;
-  document.body.appendChild(footer);
+  onReady(() => document.body.appendChild(footer));
 })();

@@ -80,25 +80,25 @@ main table { display: block; max-width: 100%; overflow-x: auto; }
   <svg viewBox="0 0 640 402" class="geo-board" style="max-width:640px" role="img" aria-label="Кривые веса и поддержания, кривая нагрузки, эпюры перерезывающих сил и изгибающих моментов по длине судна">
     <text x="60" y="24" style="font:12px system-ui;fill:#16161a">вес p(x) и поддержание b(x)</text>
     <line x1="60" y1="96" x2="600" y2="96" stroke="#6b6b74" stroke-width="1"/>
-    <path d="M 60 96 L 60 74 L 130 74 L 130 58 L 220 58 L 220 40 L 380 40 L 380 62 L 450 62 L 450 46 L 520 46 L 520 78 L 600 78 L 600 96 Z" fill="rgba(179,56,46,.10)" stroke="#b3382e" stroke-width="1.8"/>
-    <path d="M 60 96 C 120 92 160 62 230 52 C 300 44 380 44 450 54 C 510 62 560 84 600 96" fill="none" stroke="#155e75" stroke-width="2"/>
-    <text x="196" y="36" style="font:11px system-ui;fill:#b3382e">вес (ступенчатая)</text>
-    <text x="452" y="80" style="font:11px system-ui;fill:#155e75">поддержание (плавная)</text>
+    <path d="M 60 96 L 60 72 L 140 72 L 140 60 L 230 60 L 230 68 L 410 68 L 410 58 L 500 58 L 500 74 L 600 74 L 600 96 Z" fill="rgba(179,56,46,.10)" stroke="#b3382e" stroke-width="1.8"/>
+    <path d="M 60 96 C 120 90 160 60 230 50 C 300 42 380 42 450 52 C 510 62 560 84 600 96" fill="none" stroke="#155e75" stroke-width="2"/>
+    <text x="150" y="46" style="font:11px system-ui;fill:#b3382e">вес (ступенчатая)</text>
+    <text x="286" y="34" style="font:11px system-ui;fill:#155e75">поддержание (плавная): в средней части больше веса</text>
     <text x="60" y="126" style="font:12px system-ui;fill:#16161a">нагрузка q = p − b</text>
     <line x1="60" y1="160" x2="600" y2="160" stroke="#6b6b74" stroke-width="1.2"/>
-    <path d="M 60 160 L 90 160 L 90 142 L 150 142 L 150 176 L 240 176 L 240 132 L 340 132 L 340 180 L 430 180 L 430 140 L 500 140 L 500 172 L 600 172 L 600 160 Z" fill="rgba(21,94,117,.12)" stroke="#155e75" stroke-width="1.6"/>
-    <text x="256" y="128" style="font:10.5px system-ui;fill:#155e75">избыток веса</text>
-    <text x="346" y="196" style="font:10.5px system-ui;fill:#155e75">избыток поддержания</text>
+    <path d="M 60 160 L 90 160 L 90 146 L 150 146 L 150 138 L 215 138 L 215 178 L 300 178 L 300 184 L 400 184 L 400 176 L 445 176 L 445 142 L 510 142 L 510 146 L 600 146 L 600 160 Z" fill="rgba(21,94,117,.12)" stroke="#155e75" stroke-width="1.6"/>
+    <text x="96" y="126" style="font:10.5px system-ui;fill:#155e75">избыток веса в оконечностях</text>
+    <text x="286" y="200" style="font:10.5px system-ui;fill:#155e75">избыток поддержания в средней части</text>
     <text x="60" y="228" style="font:12px system-ui;fill:#16161a">перерезывающая сила Q = ∫q dx</text>
     <line x1="60" y1="272" x2="600" y2="272" stroke="#6b6b74" stroke-width="1.2"/>
-    <path d="M 60 272 C 100 264 130 246 170 240 C 210 236 240 244 270 258 C 300 272 330 286 360 292 C 400 298 440 288 480 278 C 520 268 560 268 600 272" fill="none" stroke="#155e75" stroke-width="2.2"/>
-    <circle cx="315" cy="276" r="4" fill="#b3382e"/>
-    <text x="322" y="292" style="font:10.5px system-ui;fill:#b3382e">Q = 0 → здесь M максимален</text>
+    <path d="M 60 272 C 110 262 165 244 215 238 C 262 240 300 254 330 272 C 366 292 410 302 445 304 C 500 300 552 282 600 272" fill="none" stroke="#155e75" stroke-width="2.2"/>
+    <circle cx="330" cy="272" r="4" fill="#b3382e"/>
+    <text x="338" y="266" style="font:10.5px system-ui;fill:#b3382e">Q = 0 → здесь M максимален</text>
     <text x="60" y="322" style="font:12px system-ui;fill:#16161a">изгибающий момент M = ∫Q dx</text>
     <line x1="60" y1="380" x2="600" y2="380" stroke="#6b6b74" stroke-width="1.2"/>
-    <path d="M 60 380 C 130 372 200 348 315 340 C 430 348 500 372 600 380 Z" fill="rgba(179,56,46,.14)" stroke="#b3382e" stroke-width="2.2"/>
-    <line x1="315" y1="340" x2="315" y2="380" stroke="#b3382e" stroke-width="1" stroke-dasharray="3 3"/>
-    <text x="322" y="336" style="font:11px system-ui;fill:#b3382e">M_max в районе миделя</text>
+    <path d="M 60 380 C 140 372 215 346 330 338 C 445 346 515 372 600 380 Z" fill="rgba(179,56,46,.14)" stroke="#b3382e" stroke-width="2.2"/>
+    <line x1="330" y1="338" x2="330" y2="380" stroke="#b3382e" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="338" y="336" style="font:11px system-ui;fill:#b3382e">M_max в районе миделя (перегиб)</text>
     <text x="60" y="396" style="font:11px system-ui;fill:#6b6b74">эпюры обязаны замкнуться в нуль на концах — это проверка балансировки судна</text>
   </svg>
 

@@ -142,6 +142,37 @@ class Board {
     }
     this.handlers = [];   // постоянные draggable-ручки
     this._labelBoxes = [];
+    /* Рамка подгоняется под содержимое сама. Чертёж строится по данным, и на
+       крайних положениях точек подписи и линии связи выходят за исходный
+       прямоугольник; наблюдатель ждёт конца перерисовки и расширяет viewBox.
+       Рамка только растёт (и не больше чем вдвое), чтобы картинка не «дышала»
+       при перетаскивании ручек.
+       Доскам, скомпонованным под фиксированный кадр (эскизы «Статики
+       корабля»), подгонка не нужна и меняет масштаб — им autofit: false. */
+    this._view = [0, 0, this.w, this.h];
+    this.autofit = opts.autofit !== false;
+    // шаг расталкивания подписей; на плотных эпюрах нужен крупнее
+    this.labelGap = opts.labelGap || 22;
+    if (this.autofit) {
+      let pending = 0;
+      new MutationObserver(() => {
+        if (pending) return;
+        pending = requestAnimationFrame(() => { pending = 0; this.fit(); });
+      }).observe(this.svg, { childList: true, subtree: true });
+    }
+  }
+  fit(pad = 6) {
+    let bb;
+    try { bb = this.svg.getBBox(); } catch (e) { return; }
+    if (!bb || !isFinite(bb.width) || !bb.width) return;
+    const v = this._view;
+    const x0 = Math.max(-this.w, Math.min(v[0], bb.x - pad));
+    const y0 = Math.max(-this.h, Math.min(v[1], bb.y - pad));
+    const x1 = Math.min(2 * this.w, Math.max(v[0] + v[2], bb.x + bb.width + pad));
+    const y1 = Math.min(2 * this.h, Math.max(v[1] + v[3], bb.y + bb.height + pad));
+    if (x0 === v[0] && y0 === v[1] && x1 === v[0] + v[2] && y1 === v[1] + v[3]) return;
+    this._view = [x0, y0, x1 - x0, y1 - y0];
+    this.svg.setAttribute('viewBox', this._view.join(' '));
   }
   clear() {
     for (const k in this.layers) {
@@ -170,8 +201,14 @@ class Board {
   /* Подпись у точки с уводом от коллизий (простое расталкивание). */
   label(p, text, cls, dx, dy) {
     let x = p[0] + (dx === undefined ? 7 : dx), y = p[1] + (dy === undefined ? -7 : dy);
-    for (const b of this._labelBoxes) {
-      if (Math.abs(x - b[0]) < 26 && Math.abs(y - b[1]) < 14) y = b[1] - 14;
+    /* расталкивание идёт по кругу, пока подпись не встанет свободно: за один
+       проход она успевала «перепрыгнуть» на место третьей и снова наложиться
+       (так слипались B₁ и B′₁ после поворота) */
+    const gap = this.labelGap;
+    for (let guard = 0; guard < 8; guard++) {
+      const hit = this._labelBoxes.find(b => Math.abs(x - b[0]) < 26 && Math.abs(y - b[1]) < gap);
+      if (!hit) break;
+      y = hit[1] - gap;
     }
     this._labelBoxes.push([x, y]);
     const t = svgEl('text', { x, y, class: 'lbl ' + (cls || '') }, this.layers['labels']);
@@ -420,10 +457,39 @@ function fitFieldToward(f, projFn, target, w, h, pad = 22) {
 
 /* Изометрия, автоматически вписанная в доску: по набору 3D-точек подбирает
  * масштаб и сдвиг так, чтобы всё поместилось с полями pad. */
+/* Все восемь углов габарита набора точек. Изометрия «разворачивает» габарит,
+   и если в подгонку отдать только две противоположные вершины, ширина картинки
+   выходит заниженной в разы — рисунок вылезает за рамку. */
+function boxCorners3(pts3) {
+  const lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
+  for (const p of pts3)
+    for (let i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i]); hi[i] = Math.max(hi[i], p[i]); }
+  const out = [];
+  for (const x of [lo[0], hi[0]])
+    for (const y of [lo[1], hi[1]])
+      for (const z of [lo[2], hi[2]]) out.push([x, y, z]);
+  return out;
+}
+
+/* Точка выхода луча (p, направление d) за прямоугольник доски: лучи,
+   уходящие «в бесконечность», обрезаются по рамке, а не рисуются мимо неё. */
+function rayExit(p, d, w, h, pad = 4) {
+  let t = Infinity;
+  const lim = (num, den) => {
+    if (Math.abs(den) < 1e-9) return;
+    const s = num / den;
+    if (s > 1e-6) t = Math.min(t, s);
+  };
+  lim(pad - p[0], d[0]); lim(w - pad - p[0], d[0]);
+  lim(pad - p[1], d[1]); lim(h - pad - p[1], d[1]);
+  if (!isFinite(t)) t = 0;
+  return [p[0] + d[0] * t, p[1] + d[1] * t];
+}
+
 function fittedIso(pts3, w, h, pad = 30, maxScale = 1.6) {
   const base = isoField([0, 0], 1);
   let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
-  for (const p of pts3) {
+  for (const p of boxCorners3(pts3)) {
     const q = base.project(p);
     x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]);
     y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]);
